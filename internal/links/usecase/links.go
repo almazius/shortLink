@@ -19,18 +19,7 @@ import (
 
 // создает сокращенную ссылку по id
 func POST(link string) (string, error) {
-
-	// 		POST
-	//find link
-	// if finded {
-	//	return shortLink
-	//} else {
-	//	add link, return  id
-	// create short link
-	//  return shortLink
-	// }
-	//
-	isExist, err := repository.ExistLink("https://github.com/jackc/pgx")
+	isExist, err := repository.ExistLink(link)
 	if err != nil {
 		return "", err
 	}
@@ -53,6 +42,10 @@ func POST(link string) (string, error) {
 
 		return shortLink, nil
 	}
+}
+
+func GET(link string) (string, error) {
+	return repository.FindLink(link)
 }
 
 func CreateShortLink(id int64) (string, error) {
