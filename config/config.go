@@ -13,6 +13,14 @@ type Config struct {
 		Port     *string `json:"port"`
 		DbName   *string `json:"dbName"`
 	} `json:"postgres"`
+	Redis struct {
+		Network  *string `json:"network"`
+		Host     *string `json:"host"`
+		Port     *string `json:"port"`
+		User     *string `json:"user"`
+		Password *string `json:"password"`
+		DbName   *int    `json:"dbName"`
+	} `json:"redis"`
 }
 
 func LoadConfig() (*viper.Viper, error) {

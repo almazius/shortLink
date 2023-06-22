@@ -21,28 +21,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db.Log = log.New(os.Stdout, "BLAT ", log.Lshortfile|log.LstdFlags)
+	db.Log = log.New(os.Stdout, "LOG ", log.Lshortfile|log.LstdFlags)
 
-	db.Connection, err = db.InitPsqlDB(conf)
+	db.Postgres, err = db.InitPsqlDB(conf)
 	if err != nil {
 		db.Log.Fatal(err)
 	}
 
-	err = db.Connection.Ping()
+	err = db.Postgres.Ping()
 	if err != nil {
 		db.Log.Fatal(err)
 	}
 
-	//server := grpc.NewServer()
-	//srv := &handlers.ShortLinkServer{}
-	//api.RegisterShortLinkServer(server, srv)
-	//l, err := net.Listen("tcp", ":8080")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//if server.Serve(l) != nil {
-	//	log.Fatal(err)
-	//}
+	db.Redis = db.InitRedisDB(conf)
 
 	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {

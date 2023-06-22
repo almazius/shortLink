@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"links/internal/links"
 	"links/internal/links/repository"
+	"links/pkg/db"
 	"math/big"
 	"time"
 )
@@ -42,8 +42,6 @@ func PostLink(link string) (string, *links.MyError) {
 		for {
 			shortLink = convertHashToLink(tempLink)
 
-			fmt.Println(shortLink) // !!!
-
 			exist, err = repository.ExistShortLink(shortLink)
 			if err != nil {
 				return "", err
@@ -52,6 +50,11 @@ func PostLink(link string) (string, *links.MyError) {
 				break
 			}
 			tempLink += salt
+		}
+
+		redisErr := repository.SetLinkOnCache(link, prefix+shortLink)
+		if redisErr != nil {
+			db.Log.Print(redisErr)
 		}
 
 		_, err = repository.AddNote(link, prefix+shortLink, time.Now())
@@ -64,6 +67,13 @@ func PostLink(link string) (string, *links.MyError) {
 }
 
 func GetLink(shortLink string) (string, *links.MyError) {
+	link, redisErr := repository.GetLinkOnCache(shortLink)
+	if redisErr == nil && link != "" {
+		return link, nil
+	} else if redisErr != nil {
+		db.Log.Print(redisErr)
+	}
+
 	link, err := repository.FindLink(shortLink)
 	if err != nil && err.Err == sql.ErrNoRows {
 		err.Code = 404
@@ -71,6 +81,10 @@ func GetLink(shortLink string) (string, *links.MyError) {
 		return "", err
 	} else if err != nil {
 		return "", err
+	}
+	redisErr = repository.SetLinkOnCache(link, shortLink)
+	if redisErr != nil {
+		db.Log.Print(redisErr)
 	}
 	return link, nil
 }
