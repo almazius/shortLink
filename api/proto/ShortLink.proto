@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/home/sigy/GolandProjects/links";
+
+service ShortLink {
+  rpc Get(SlRequest) returns (SlResponse) {}
+  rpc Post(SlRequest) returns (SlResponse) {}
+}
+
+message SlRequest {
+  string startLink = 1;
+}
+
+message SlResponse {
+  string resultLink = 1;
+  int32 errorCode = 2;
+  string errorMessage = 3;
+}

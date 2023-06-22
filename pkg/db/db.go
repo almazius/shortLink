@@ -5,9 +5,11 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"links/config"
+	"log"
 )
 
 var Connection *sqlx.DB
+var Log *log.Logger
 
 func InitPsqlDB(c *config.Config) (*sqlx.DB, error) {
 	connectionUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
