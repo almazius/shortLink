@@ -1,6 +1,14 @@
 Postgres:
-  user: ""
-  password: ""
+  user: "almaz"
+  password: "almaz"
   host: "127.0.0.1"
   port: "5432"
   dbName: "postgres"
+
+Redis:
+  Network: "tcp"
+  Host:     "127.0.0.1"
+  Port:     "6379"
+  User:     ""
+  Password: ""
+  DbName: 0
