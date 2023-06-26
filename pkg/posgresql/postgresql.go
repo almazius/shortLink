@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// connectWithTries tries to connect attempts times within delay seconds
 func connectWithTries(fn func() error, attempts int, delay time.Duration) (err error) {
 	for i := 0; i < attempts; i++ {
 		err = fn()
@@ -21,6 +22,7 @@ func connectWithTries(fn func() error, attempts int, delay time.Duration) (err e
 	return err
 }
 
+// GetPool Creates a connection pool
 func GetPool(ctx context.Context, conf *config.Config) (connect *pgxpool.Pool, err error) {
 	err = connectWithTries(func() error {
 		ctx, cancel := context.WithCancel(ctx)

@@ -28,7 +28,33 @@ type Service struct {
 	Cache links.CacheService
 }
 
-// создает сокращенную ссылку по id
+// NewLinkService Create new instance Postgres
+func NewLinkService(ctx context.Context, conf *config.Config) (links.LinkService, error) {
+	Log := log.New(os.Stdout, "LinkService ", log.Lshortfile|log.LstdFlags)
+	pool, err := posgresql.GetPool(ctx, conf)
+	if err != nil {
+		Log.Print(err)
+		return nil, err
+	}
+	database := repository.NewPostgres(pool)
+
+	client := redis.InitRedisDB(conf)
+	_, err = client.Ping(ctx).Result()
+	if err != nil {
+		Log.Print(err)
+		return nil, err
+	}
+	cache := repository.NewClient(client)
+
+	return &Service{
+		Log:   Log,
+		Db:    database,
+		Cache: cache,
+	}, nil
+}
+
+// PostLink Checks for the presence of a link in the database, if it does not exist,
+// then creates a shortened version. If it already exists, it will return an abbreviated version of it
 func (s *Service) PostLink(ctx context.Context, link string) (string, *links.MyError) {
 	if shortLink, err := s.Db.GetShortLink(ctx, link); err == nil {
 		return shortLink, nil
@@ -59,6 +85,8 @@ func (s *Service) PostLink(ctx context.Context, link string) (string, *links.MyE
 	}
 }
 
+// GetLink Checks for an abbreviated link in the cache,
+// if it is empty or an error has occurred, then tries to get the full version from the database.
 func (s *Service) GetLink(ctx context.Context, shortLink string) (string, *links.MyError) {
 	link, redisErr := s.Cache.GetLinkOnCache(shortLink)
 	if redisErr == nil && link != "" {
@@ -82,6 +110,9 @@ func (s *Service) GetLink(ctx context.Context, shortLink string) (string, *links
 	return link, nil
 }
 
+// convertHashToLink converts the full link to a cache, and then to an abbreviated link
+// by dividing the cache by 62 and getting the number of the number that
+// is replaced by a character in the alphabet.
 func convertHashToLink(link string) string {
 	shortLink := make([]byte, lengthLink, lengthLink)
 	v := big.Int{}
@@ -96,28 +127,4 @@ func convertHashToLink(link string) string {
 	}
 	//result.Mod(result, big.NewInt(lengthLink))
 	return string(shortLink)
-}
-
-func NewLinkService(ctx context.Context, conf *config.Config) (links.LinkService, error) {
-	Log := log.New(os.Stdout, "LinkService ", log.Lshortfile|log.LstdFlags)
-	pool, err := posgresql.GetPool(ctx, conf)
-	if err != nil {
-		Log.Print(err)
-		return nil, err
-	}
-	database := repository.NewPostgres(pool)
-
-	client := redis.InitRedisDB(conf)
-	_, err = client.Ping(ctx).Result()
-	if err != nil {
-		Log.Print(err)
-		return nil, err
-	}
-	cache := repository.NewClient(client)
-
-	return &Service{
-		Log:   Log,
-		Db:    database,
-		Cache: cache,
-	}, nil
 }

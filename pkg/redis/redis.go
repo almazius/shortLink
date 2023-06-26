@@ -5,6 +5,7 @@ import (
 	"links/config"
 )
 
+// InitRedisDB create redis client for connection
 func InitRedisDB(c *config.Config) *redis.Client {
 	database := redis.NewClient(&redis.Options{
 		Network:               *c.Redis.Network,

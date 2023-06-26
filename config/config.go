@@ -23,6 +23,7 @@ type Config struct {
 	} `json:"redis"`
 }
 
+// LoadConfig Loads and reads the config
 func LoadConfig() (*viper.Viper, error) {
 	v := viper.New()
 	v.AddConfigPath("config")
@@ -36,6 +37,7 @@ func LoadConfig() (*viper.Viper, error) {
 	return v, nil
 }
 
+// ParseConfig parse config
 func ParseConfig(v *viper.Viper) (*Config, error) {
 	var c Config
 	err := v.Unmarshal(&c)

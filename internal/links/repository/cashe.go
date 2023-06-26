@@ -14,6 +14,7 @@ type RedisCache struct {
 	Log    *log.Logger
 }
 
+// NewClient Create new instance RedisCache
 func NewClient(client *redis.Client) links.CacheService {
 	return &RedisCache{
 		Client: client,
@@ -21,6 +22,7 @@ func NewClient(client *redis.Client) links.CacheService {
 	}
 }
 
+// GetLinkOnCache gets the full link by the shortened version from the cache
 func (r *RedisCache) GetLinkOnCache(shortLink string) (string, error) {
 	val, err := r.Client.Get(context.Background(), shortLink).Result()
 	if err != redis.Nil {
@@ -29,6 +31,7 @@ func (r *RedisCache) GetLinkOnCache(shortLink string) (string, error) {
 	return val, nil
 }
 
+// SetLinkOnCache Adds the entry "full link - abbreviated link" to the cache
 func (r *RedisCache) SetLinkOnCache(link, shortLink string) error {
 	err := r.Client.Set(context.Background(), shortLink, link, 10*time.Hour)
 	if err.Err() != nil {

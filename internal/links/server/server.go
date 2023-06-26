@@ -13,6 +13,7 @@ type ShortLinkServer struct {
 	LinkService links.LinkService
 }
 
+// NewShortLinkServer Create new instance ShortLinkServer
 func NewShortLinkServer(ctx context.Context, conf *config.Config) (*ShortLinkServer, error) {
 	var (
 		server ShortLinkServer
@@ -25,6 +26,7 @@ func NewShortLinkServer(ctx context.Context, conf *config.Config) (*ShortLinkSer
 	return &server, nil
 }
 
+// Get Handler for get full link from short link
 func (s *ShortLinkServer) Get(ctx context.Context, request *pb.SlRequest) (*pb.SlResponse, error) {
 	link := &pb.SlResponse{}
 	newLink, err := s.LinkService.GetLink(ctx, request.GetStartLink())
@@ -36,6 +38,7 @@ func (s *ShortLinkServer) Get(ctx context.Context, request *pb.SlRequest) (*pb.S
 	return link, nil
 }
 
+// Post Handler for get short link from full link
 func (s *ShortLinkServer) Post(ctx context.Context, request *pb.SlRequest) (*pb.SlResponse, error) {
 	link := &pb.SlResponse{}
 	newLink, err := s.LinkService.PostLink(ctx, request.GetStartLink())
